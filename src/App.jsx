@@ -2,7 +2,7 @@ import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
-import Body from './components/Body'
+import Home from './components/Home'
 import Login from './components/Login'
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
 const appRouter = createBrowserRouter ([
   {
     path: "/",
-    element: <Body />
+    element: <Home />
   },
   {
     path: "/login",
