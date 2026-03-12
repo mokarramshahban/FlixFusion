@@ -2,23 +2,70 @@ import React, { useState, useRef } from "react";
 import BG_IMAGE from "../assets/images/login-bg.jpg";
 import Header from "./Header";
 import { checkValidDataSignIn, checkValidDataSignUp } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  const name = useRef(null)
+  const name = useRef(null);
   const email = useRef(null);
   const password = useRef(null);
   const handleButtonClick = () => {
     // validate email & password
-    if(isSignIn){
-    const message = checkValidDataSignIn(email.current.value, password.current.value);
-        setErrorMessage(message);
-    }
-
-    if(!isSignIn) {
-      const message = checkValidDataSignUp(name.current.value, email.current.value, password.current.value);
+    if (isSignIn) {
+      const message = checkValidDataSignIn(
+        email.current.value,
+        password.current.value,
+      );
       setErrorMessage(message);
+      if (message) return;
+
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value,
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + "-" + errorMessage);
+          console.log(errorCode + "-" + errorMessage);
+        });
+    } else {
+      const message = checkValidDataSignUp(
+        name.current.value,
+        email.current.value,
+        password.current.value,
+      );
+      setErrorMessage(message);
+      if (message) return;
+
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value,
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + "-" + errorMessage);
+          console.log(errorCode + "-" + errorMessage);
+        });
     }
   };
 
