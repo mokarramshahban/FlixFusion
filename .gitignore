@@ -1,5 +1,5 @@
 .env
-/src/utils/firebase.js
+.env.local
 # Logs
 logs
 *.log

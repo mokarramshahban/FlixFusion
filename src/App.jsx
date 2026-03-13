@@ -1,10 +1,9 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import Login from './components/Login'
-
-function App() {
+import { Provider } from 'react-redux'
+import appStore from './utils/appStore'
 
 const appRouter = createBrowserRouter ([
   {
@@ -13,13 +12,12 @@ const appRouter = createBrowserRouter ([
   },
 ]);
 
-
-
-
-
+function App() {
   return (
     <div>
-      <RouterProvider router={appRouter} />
+      <Provider store={appStore}>
+        <RouterProvider router={appRouter} />
+      </Provider>
     </div>
   )
 }
