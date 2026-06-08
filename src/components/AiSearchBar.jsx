@@ -1,7 +1,7 @@
 import { FaSearch } from "react-icons/fa";
 import lang from "../utils/languageConstants";
 import { useDispatch, useSelector } from "react-redux";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import puter from "@heyputer/puter.js";
 import {
   MOVIE_SEARCH_DETAILS_TMDB_URL1,
@@ -15,6 +15,7 @@ const AiSearchBar = () => {
   const dispatch = useDispatch();
   const langKey = useSelector((store) => store.config.lang);
   const searchText = useRef(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const searchMovieTMDB = async (movie) => {
     const data = await fetch(
@@ -32,12 +33,21 @@ const AiSearchBar = () => {
       ". Only give me names of 5 movies, comma separated like the example result given ahead. Example Result: Gadar, Sholay, Don, Golmaal, Koi Mil Gaya";
 
     try {
+      setErrorMessage(null);
       dispatch(setAiSearchLoading(true));
 
       const response = await puter.ai.chat(query);
-      const movieNames = response?.message?.content;
-      if (!movieNames) {
+      
+      // Safely extract the string from varying response formats
+      let movieNames = typeof response === "string" ? response : (response?.text || response?.message?.content);
+      
+      if (Array.isArray(movieNames)) {
+        movieNames = movieNames.map((c) => c.text || "").join("");
+      }
+
+      if (!movieNames || typeof movieNames !== "string") {
         console.error("AI did not return any movie suggestions.");
+        setErrorMessage("AI did not return any valid movie suggestions.");
         return;
       }
       const suggestedMovies = movieNames.split(",").map((movie) => movie.trim());
@@ -57,6 +67,7 @@ const AiSearchBar = () => {
       );
     } catch (error) {
       console.error("Error fetching from Puter AI:", error);
+      setErrorMessage("Failed to connect to the AI service. Please check your network or try again later.");
     } finally {
       dispatch(setAiSearchLoading(false));
     }
@@ -78,6 +89,9 @@ const AiSearchBar = () => {
           <FaSearch />
         </button>
       </form>
+      {errorMessage && (
+        <p className="text-red-500 font-bold text-lg text-center mt-4">{errorMessage}</p>
+      )}
     </div>
   );
 };
